@@ -13,7 +13,9 @@
     "authors": [
         {
             "name": "Giorgos Kalmoukis",
-            "role": "SRE"
+            "email": "giorgoskalmoukis@theloom.gr",
+            "homepage": "https://github.com/gkalmoukis",
+            "role": "SWE"
         }
     ],
     "require": {
