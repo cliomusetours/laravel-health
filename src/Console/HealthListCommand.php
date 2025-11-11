@@ -13,7 +13,7 @@ class HealthListCommand extends Command
 
     public function handle(HealthRunner $runner): int
     {
-        $this->info('Configured Health Checks:');
+        $this->info('Configured Health Checks');
         $this->newLine();
 
         $checks = $runner->listChecks();
@@ -26,8 +26,8 @@ class HealthListCommand extends Command
         $this->table(
             ['Name', 'Class', 'Enabled', 'Status'],
             collect($checks)->map(function ($check) {
-                $enabledText = ($check['enabled'] ?? true) ? '<fg=green>Yes</fg>' : '<fg=red>No</fg>';
-                $status = isset($check['error']) ? '<fg=red>Error: ' . $check['error'] . '</fg>' : '<fg=green>OK</fg>';
+                $enabledText = ($check['enabled'] ?? true) ? 'Yes' : 'No';
+                $status = isset($check['error']) ? 'Error: ' . $check['error']  : 'OK';
 
                 return [
                     $check['name'],
@@ -39,7 +39,6 @@ class HealthListCommand extends Command
         );
 
         $this->newLine();
-        $this->info('Total checks: ' . count($checks));
 
         return Command::SUCCESS;
     }
