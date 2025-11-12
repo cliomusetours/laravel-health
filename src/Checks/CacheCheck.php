@@ -29,8 +29,7 @@ class CacheCheck implements HealthCheck
         try {
             foreach ($drivers as $driver) {
                 try {
-                    // Skip if driver is not configured
-                    if (!$this->isDriverConfigured($driver)) {
+                    if (! $this->isDriverConfigured($driver)) {
                         continue;
                     }
 
@@ -38,13 +37,10 @@ class CacheCheck implements HealthCheck
                     $key = 'laravel_health_cache_check_' . $driver;
                     $value = 'test_' . time();
 
-                    // Write
                     $store->put($key, $value, 60);
 
-                    // Read
                     $retrieved = $store->get($key);
 
-                    // Delete
                     $store->forget($key);
 
                     if ($retrieved === $value) {

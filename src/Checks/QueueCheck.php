@@ -5,6 +5,14 @@ namespace Cliomusetours\LaravelHealth\Checks;
 use Cliomusetours\LaravelHealth\Contracts\HealthCheck;
 use Illuminate\Support\Facades\Queue;
 
+/**
+ * Queue Health Check
+ * 
+ * Monitors queue connections and job counts.
+ * Configure the 'queues' array in health.php to check multiple queues:
+ * 
+ * 'queues' => ['default', 'emails', 'notifications']
+ */
 class QueueCheck implements HealthCheck
 {
     protected array $config;
@@ -22,44 +30,76 @@ class QueueCheck implements HealthCheck
     public function run(): array
     {
         $startTime = microtime(true);
-        $connection = $this->config['connection'] ?? config('queue.default');
+        $queues = $this->config['queues'] ?? [config('queue.default')];
         $threshold = $this->config['threshold'] ?? 100;
 
-        try {
-            $queueSize = $this->getQueueSize($connection);
-            $duration = (microtime(true) - $startTime) * 1000;
+        // Ensure queues is an array
+        if (empty($queues)) {
+            $queues = [config('queue.default')];
+        }
 
-            $status = 'ok';
-            $message = 'Queue is operational';
+        $results = [];
+        $overallStatus = 'ok';
+        $totalSize = 0;
+        $warnings = [];
+        $errors = [];
 
-            if ($queueSize > $threshold) {
-                $status = 'warning';
-                $message = "Queue size ($queueSize) exceeds threshold ($threshold)";
-            }
+        foreach ($queues as $queueName) {
+            try {
+                $queueSize = $this->getQueueSize($queueName);
+                $totalSize += $queueSize;
 
-            return [
-                'status' => $status,
-                'duration_ms' => round($duration, 2),
-                'message' => $message,
-                'meta' => [
-                    'connection' => $connection,
+                $results[$queueName] = [
                     'size' => $queueSize,
                     'threshold' => $threshold,
-                ],
-            ];
-        } catch (\Throwable $e) {
-            $duration = (microtime(true) - $startTime) * 1000;
+                    'status' => 'ok',
+                ];
 
-            return [
-                'status' => 'critical',
-                'duration_ms' => round($duration, 2),
-                'message' => 'Queue check failed: ' . $e->getMessage(),
-                'meta' => [
-                    'connection' => $connection,
-                    'error' => get_class($e),
-                ],
-            ];
+                if ($queueSize > $threshold) {
+                    $results[$queueName]['status'] = 'warning';
+                    $warnings[] = "$queueName: $queueSize jobs (threshold: $threshold)";
+                    $overallStatus = 'warning';
+                }
+            } catch (\Throwable $e) {
+                $results[$queueName] = [
+                    'size' => null,
+                    'status' => 'critical',
+                    'error' => $e->getMessage(),
+                ];
+                $errors[] = "$queueName: " . $e->getMessage();
+                $overallStatus = 'critical';
+            }
         }
+
+        $duration = (microtime(true) - $startTime) * 1000;
+
+        // Build message
+        $message = $this->buildMessage($overallStatus, $warnings, $errors, $totalSize, count($queues));
+
+        return [
+            'status' => $overallStatus,
+            'duration_ms' => round($duration, 2),
+            'message' => $message,
+            'meta' => [
+                'queues' => $results,
+                'total_size' => $totalSize,
+                'threshold' => $threshold,
+            ],
+        ];
+    }
+
+    protected function buildMessage(string $status, array $warnings, array $errors, int $totalSize, int $queueCount): string
+    {
+        if ($status === 'critical' && !empty($errors)) {
+            return 'Queue check failed: ' . implode('; ', $errors);
+        }
+
+        if ($status === 'warning' && !empty($warnings)) {
+            return 'Queue size warning: ' . implode('; ', $warnings);
+        }
+
+        $queueText = $queueCount === 1 ? 'queue' : 'queues';
+        return "All $queueCount $queueText operational (total: $totalSize jobs)";
     }
 
     protected function getQueueSize(string $connection): int
@@ -73,15 +113,12 @@ class QueueCheck implements HealthCheck
                 case 'database':
                     return $this->getDatabaseQueueSize($connection);
                 case 'sync':
-                    return 0; // Sync queue has no backlog
+                    return 0; // sync queue has no backlog
                 default:
-                    // For other drivers, we can't easily determine size
-                    // Return 0 to indicate operational but unknown size
-                    return 0;
+                    return 0; // To indicate operational but unknown size
             }
         } catch (\Throwable $e) {
-            // If we can't get size, return 0 rather than failing
-            return 0;
+            return 0; // return 0 if we can't get size, rather than failing
         }
     }
 

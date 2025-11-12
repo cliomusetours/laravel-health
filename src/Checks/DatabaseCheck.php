@@ -24,7 +24,6 @@ class DatabaseCheck implements HealthCheck
         $startTime = microtime(true);
 
         try {
-            // Simple SELECT 1 query to verify database connectivity
             DB::select('SELECT 1');
 
             $duration = (microtime(true) - $startTime) * 1000;
@@ -49,7 +48,7 @@ class DatabaseCheck implements HealthCheck
             ];
         } catch (\Throwable $e) {
             $duration = (microtime(true) - $startTime) * 1000;
-
+            
             return [
                 'status' => 'critical',
                 'duration_ms' => round($duration, 2),
@@ -60,5 +59,6 @@ class DatabaseCheck implements HealthCheck
                 ],
             ];
         }
+
     }
 }

@@ -23,7 +23,6 @@ class HealthServiceProvider extends ServiceProvider
 
         $this->app->singleton(HealthRunner::class, function ($app) {
             return new HealthRunner(
-                $app['cache']->store(),
                 $app['events']
             );
         });

@@ -6,7 +6,6 @@ use Cliomusetours\LaravelHealth\Contracts\HealthCheck;
 use Cliomusetours\LaravelHealth\Events\HealthCheckFailed;
 use Cliomusetours\LaravelHealth\Events\HealthCheckPassed;
 use Cliomusetours\LaravelHealth\Events\HealthCheckStarted;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\App;
 
@@ -16,7 +15,6 @@ class HealthRunner
     protected array $config;
 
     public function __construct(
-        protected CacheRepository $cache,
         protected Dispatcher $events
     ) {
         $this->config = config('health', []);
@@ -25,23 +23,8 @@ class HealthRunner
     /**
      * Run all enabled health checks.
      */
-    public function runChecks(bool $useCache = true): array
+    public function runChecks(): array
     {
-        $cacheEnabled = $this->config['cache']['enabled'] ?? false;
-        $cacheTtl = $this->config['cache']['ttl'] ?? 60;
-        $cacheKey = $this->config['cache']['key'] ?? 'laravel_health_readiness_cache';
-
-        // Check cache first
-        if ($useCache && $cacheEnabled && $cacheTtl > 0) {
-            $cached = $this->cache->get($cacheKey);
-            if ($cached !== null) {
-                return array_merge($cached, [
-                    'cached' => true,
-                    'cached_at' => $cached['timestamp'] ?? null,
-                ]);
-            }
-        }
-
         $this->results = [];
         $checks = $this->config['checks'] ?? [];
 
@@ -69,14 +52,7 @@ class HealthRunner
             }
         }
 
-        $response = $this->buildResponse();
-
-        // Cache the results
-        if ($useCache && $cacheEnabled && $cacheTtl > 0) {
-            $this->cache->put($cacheKey, $response, $cacheTtl);
-        }
-
-        return array_merge($response, ['cached' => false]);
+        return $this->buildResponse();
     }
 
     /**
@@ -225,7 +201,7 @@ class HealthRunner
                 ];
             }
         }
-
+        
         return $list;
     }
 }

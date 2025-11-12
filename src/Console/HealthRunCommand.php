@@ -7,26 +7,19 @@ use Illuminate\Console\Command;
 
 class HealthRunCommand extends Command
 {
-    protected $signature = 'health:run {--no-cache : Skip cache and run fresh checks}';
+    protected $signature = 'health:run';
 
     protected $description = 'Run all health checks and display results';
 
     public function handle(HealthRunner $runner): int
     {
-        $this->info('Running health checks...');
+        $this->info('Running health checks.');
         $this->newLine();
 
-        $useCache = !$this->option('no-cache');
-        $results = $runner->runChecks($useCache);
+        $results = $runner->runChecks();
 
-        // Display overall status
-        $statusColor = $results['status'] === 'ok' ? 'green' : 'red';
-        $this->line("<fg=$statusColor>Overall Status: " . strtoupper($results['status']) . '</fg>');
+        $this->line("Overall Status: " . strtoupper($results['status']));
         $this->line('Timestamp: ' . $results['timestamp']);
-
-        if ($results['cached'] ?? false) {
-            $this->line('<fg=yellow>Results from cache (cached at: ' . ($results['cached_at'] ?? 'unknown') . ')</fg>');
-        }
 
         $this->newLine();
 
@@ -35,16 +28,9 @@ class HealthRunCommand extends Command
             $this->table(
                 ['Check', 'Status', 'Duration (ms)', 'Message'],
                 collect($results['checks'])->map(function ($check, $name) {
-                    $statusColor = match ($check['status']) {
-                        'ok' => 'green',
-                        'warning' => 'yellow',
-                        'critical' => 'red',
-                        default => 'white',
-                    };
-
                     return [
                         $name,
-                        "<fg=$statusColor>" . strtoupper($check['status']) . '</fg>',
+                        strtoupper($check['status']),
                         $check['duration_ms'] ?? 0,
                         $check['message'] ?? '',
                     ];

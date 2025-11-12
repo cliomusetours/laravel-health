@@ -32,22 +32,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Readiness Cache Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Cache readiness check results for performance. Set TTL in seconds.
-    | Set to 0 or null to disable caching.
-    |
-    */
-
-    'cache' => [
-        'enabled' => true,
-        'ttl' => 60, // Cache results for 60 seconds
-        'key' => 'laravel_health_readiness_cache',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Global Timeout
     |--------------------------------------------------------------------------
     |
@@ -84,7 +68,7 @@ return [
         \Cliomusetours\LaravelHealth\Checks\QueueCheck::class => [
             'enabled' => true,
             'timeout' => 5,
-            'connection' => null, // null = default connection
+            'queues' => ['default', 'emails', 'notifications'], // Array of queue names to check
             'threshold' => 100, // Warning if queue size exceeds this
         ],
 

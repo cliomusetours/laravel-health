@@ -32,15 +32,7 @@ class HealthCheckCommand extends Command
             return Command::FAILURE;
         }
 
-        // Display result
-        $statusColor = match ($result['status']) {
-            'ok' => 'green',
-            'warning' => 'yellow',
-            'critical' => 'red',
-            default => 'white',
-        };
-
-        $this->line("<fg=$statusColor>Status: " . strtoupper($result['status']) . '</fg>');
+        $this->line("Status: " . strtoupper($result['status']));
         $this->line('Duration: ' . ($result['duration_ms'] ?? 0) . ' ms');
         $this->line('Message: ' . ($result['message'] ?? 'No message'));
 
