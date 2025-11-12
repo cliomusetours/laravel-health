@@ -6,11 +6,28 @@ use Cliomusetours\LaravelHealth\Runner\HealthRunner;
 use Illuminate\Console\Command;
 
 class HealthCheckCommand extends Command
-{
+{   
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'health:check {check : The name of the health check to run}';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Run a specific health check';
 
+    /**
+     * Execute the console command.
+     * 
+     * @param HealthRunner $runner
+     * 
+     * @return int
+     */
     public function handle(HealthRunner $runner): int
     {
         $checkName = $this->argument('check');

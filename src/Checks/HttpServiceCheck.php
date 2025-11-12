@@ -5,20 +5,41 @@ namespace Cliomusetours\LaravelHealth\Checks;
 use Cliomusetours\LaravelHealth\Contracts\HealthCheck;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Health check for HTTP service availability.
+ */
 class HttpServiceCheck implements HealthCheck
 {
+    /**
+     * Configuration for this check.
+     * 
+     * @var array
+     */
     protected array $config;
 
+    /**
+     * HttpServiceCheck Constructor.
+     */
     public function __construct()
     {
         $this->config = config('health.checks.' . self::class, []);
     }
 
+    /**
+     * Get the name of the check.
+     * 
+     * @return string
+     */
     public function name(): string
     {
         return 'http_service';
     }
 
+    /**
+     * Run the HTTP service health check.
+     * 
+     * @return array
+     */
     public function run(): array
     {
         $startTime = microtime(true);

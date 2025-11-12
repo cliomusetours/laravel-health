@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Cache;
 class LivenessController
 {
     /**
-     * Liveness probe - extremely fast check to verify app is alive.
+     * Liveness probe - lightweight check to see if the application is running.
+     * 
+     * @return JsonResponse
      */
     public function __invoke(): JsonResponse
     {

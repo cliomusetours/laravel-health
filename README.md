@@ -28,8 +28,8 @@ A minimal, production-ready Laravel package providing liveness and readiness hea
 
 ## Requirements
 
-- PHP 8.1 or higher
-- Laravel 9.0, 10.0, or 11.0
+- PHP `8.1` or higher
+- Laravel `9.*`, `10.*`, `11.*` or `12.*`
 
 ## Installation
 
@@ -49,7 +49,7 @@ Publish the configuration file:
 php artisan vendor:publish --tag=health-config
 ```
 
-This creates `config/health.php` where you can configure checks, routes, caching, and more.
+This creates `config/health.php` where you can configure checks, routes, and more.
 
 ## Usage
 
@@ -58,10 +58,8 @@ This creates `config/health.php` where you can configure checks, routes, caching
 Once installed, the health check endpoints are immediately available:
 
 ```bash
-# Liveness probe (very fast)
 curl http://localhost:8000/health/live
 
-# Readiness probe (runs all checks)
 curl http://localhost:8000/health/ready
 ```
 

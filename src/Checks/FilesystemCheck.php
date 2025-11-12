@@ -5,20 +5,41 @@ namespace Cliomusetours\LaravelHealth\Checks;
 use Cliomusetours\LaravelHealth\Contracts\HealthCheck;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Health check for filesystem operations.
+ */
 class FilesystemCheck implements HealthCheck
 {
+    /**
+     * Configuration for this check.
+     * 
+     * @var array
+     */
     protected array $config;
 
+    /**
+     * FilesystemCheck Constructor.
+     */
     public function __construct()
     {
         $this->config = config('health.checks.' . self::class, []);
     }
 
+    /**
+     * Get the name of the check.
+     * 
+     * @return string
+     */
     public function name(): string
     {
         return 'filesystem';
     }
 
+    /**
+     * Run the filesystem health check.
+     * 
+     * @return array
+     */
     public function run(): array
     {
         $startTime = microtime(true);

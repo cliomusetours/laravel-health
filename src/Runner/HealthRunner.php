@@ -10,11 +10,24 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 
+
 class HealthRunner
 {
+    /** 
+     * Check results
+     * @var array<string, array> 
+     */
     protected array $results = [];
+    
+    /**
+     * HealthRunner Constructor.
+     * @var array
+     */
     protected array $config;
 
+    /**
+     * HealthRunner Constructor.
+     */
     public function __construct(
         protected Dispatcher $events
     ) {
@@ -23,6 +36,8 @@ class HealthRunner
 
     /**
      * Run all enabled health checks.
+     * 
+     * @return array<string, array>
      */
     public function runChecks(): array
     {
@@ -79,6 +94,10 @@ class HealthRunner
 
     /**
      * Run a single health check with timeout handling.
+     * 
+     * @param HealthCheck $check
+     * @param array $config
+     * @return array
      */
     protected function runSingleCheck(HealthCheck $check, array $config): array
     {
@@ -148,6 +167,9 @@ class HealthRunner
 
     /**
      * Run a specific check by name.
+     * 
+     * @param string $checkName
+     * @return array|null
      */
     public function runCheck(string $checkName): ?array
     {
@@ -174,6 +196,8 @@ class HealthRunner
 
     /**
      * Build the response with overall status.
+     * 
+     * @return array<string, mixed>
      */
     protected function buildResponse(): array
     {
@@ -195,6 +219,8 @@ class HealthRunner
 
     /**
      * Get all configured checks.
+     * 
+     * @return array<int, array<string, mixed>>
      */
     public function listChecks(): array
     {

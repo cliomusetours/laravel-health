@@ -6,15 +6,15 @@ interface HealthCheck
 {
     /**
      * Get the name of the health check.
+     * 
+     * @return string
      */
     public function name(): string;
 
     /**
      * Run the health check.
      *
-     * @return array{status: string, duration_ms: float, message: string, meta: array}
-     *
-     * Status values: 'ok', 'warning', 'critical'
+     * @return array
      */
     public function run(): array;
 }

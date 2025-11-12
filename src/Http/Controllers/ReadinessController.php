@@ -6,7 +6,12 @@ use Cliomusetours\LaravelHealth\Runner\HealthRunner;
 use Illuminate\Http\JsonResponse;
 
 class ReadinessController
-{
+{   
+    /**
+     * Create a new controller instance.
+     * 
+     * @param HealthRunner $runner
+     */
     public function __construct(
         protected HealthRunner $runner
     ) {
@@ -14,6 +19,8 @@ class ReadinessController
 
     /**
      * Readiness probe - run all configured health checks.
+     * 
+     * @return JsonResponse
      */
     public function __invoke(): JsonResponse
     {

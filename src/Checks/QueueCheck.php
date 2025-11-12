@@ -9,24 +9,40 @@ use Illuminate\Support\Facades\Queue;
  * Queue Health Check
  * 
  * Monitors queue connections and job counts.
- * Configure the 'queues' array in health.php to check multiple queues:
  * 
- * 'queues' => ['default', 'emails', 'notifications']
  */
 class QueueCheck implements HealthCheck
 {
+    /**
+     * Configuration for this check.
+     * 
+     * @var array
+     */
     protected array $config;
 
+    /**
+     * QueueCheck Constructor.
+     */
     public function __construct()
     {
         $this->config = config('health.checks.' . self::class, []);
     }
 
+    /**
+     * Get the name of the check.
+     * 
+     * @return string
+     */
     public function name(): string
     {
         return 'queue';
     }
 
+    /**
+     * Run the queue health check.
+     * 
+     * @return array
+     */
     public function run(): array
     {
         $startTime = microtime(true);
