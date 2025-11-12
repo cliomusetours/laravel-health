@@ -2,21 +2,15 @@
 
 namespace Cliomusetours\LaravelHealth\Http\Controllers;
 
-use Cliomusetours\LaravelHealth\Runner\HealthRunner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
-class HealthController
+class LivenessController
 {
-    public function __construct(
-        protected HealthRunner $runner
-    ) {
-    }
-
     /**
      * Liveness probe - extremely fast check to verify app is alive.
      */
-    public function live(): JsonResponse
+    public function __invoke(): JsonResponse
     {
         $config = config('health.liveness', []);
         $cachePing = $config['cache_ping'] ?? false;
@@ -37,17 +31,5 @@ class HealthController
         }
 
         return response()->json($response, 200);
-    }
-
-    /**
-     * Readiness probe - run all configured health checks.
-     */
-    public function ready(): JsonResponse
-    {
-        $results = $this->runner->runChecks();
-
-        $httpStatus = $results['status'] === 'failed' ? 503 : 200;
-
-        return response()->json($results, $httpStatus);
     }
 }

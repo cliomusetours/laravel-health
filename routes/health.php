@@ -1,7 +1,8 @@
 <?php
 
-use Cliomusetours\LaravelHealth\Http\Controllers\HealthController;
+use Cliomusetours\LaravelHealth\Http\Controllers\LivenessController;
+use Cliomusetours\LaravelHealth\Http\Controllers\ReadinessController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/live', [HealthController::class, 'live'])->name('health.live');
-Route::get('/ready', [HealthController::class, 'ready'])->name('health.ready');
+Route::get('/live', LivenessController::class)->name('health.live');
+Route::get('/ready', ReadinessController::class)->name('health.ready');
