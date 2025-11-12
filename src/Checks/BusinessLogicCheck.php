@@ -29,7 +29,9 @@ class BusinessLogicCheck implements HealthCheck
                 'status' => 'ok',
                 'duration_ms' => round($duration, 2),
                 'message' => 'Placeholder business logic check passed.',
-                'meta' => [],
+                'meta' => [
+                    'note' => 'This is a placeholder check. Override this class to implement custom business logic checks.',
+                ],
             ];
         } catch (\Throwable $e) {
             $duration = (microtime(true) - $startTime) * 1000;

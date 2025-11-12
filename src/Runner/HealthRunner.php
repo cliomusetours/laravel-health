@@ -8,6 +8,7 @@ use Cliomusetours\LaravelHealth\Events\HealthCheckPassed;
 use Cliomusetours\LaravelHealth\Events\HealthCheckStarted;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 
 class HealthRunner
 {
@@ -25,6 +26,19 @@ class HealthRunner
      */
     public function runChecks(): array
     {
+        $cacheEnabled = $this->config['cache']['enabled'] ?? false;
+        $cacheTtl = $this->config['cache']['ttl'] ?? 60;
+        $cacheKey = 'laravel_health_checks';
+
+        // Try to get cached results
+        if ($cacheEnabled) {
+            $cached = Cache::get($cacheKey);
+            if ($cached !== null) {
+                $cached['cached'] = true;
+                return $cached;
+            }
+        }
+
         $this->results = [];
         $checks = $this->config['checks'] ?? [];
 
@@ -52,7 +66,15 @@ class HealthRunner
             }
         }
 
-        return $this->buildResponse();
+        $response = $this->buildResponse();
+        $response['cached'] = false;
+
+        // Cache the results
+        if ($cacheEnabled) {
+            Cache::put($cacheKey, $response, $cacheTtl);
+        }
+
+        return $response;
     }
 
     /**

@@ -32,8 +32,13 @@ test('cache check passes when cache is working', function () {
 test('cache check returns critical when cache fails', function () {
     config(['health.checks.' . CacheCheck::class . '.drivers' => ['redis']]);
 
+    // Mock isDriverConfigured to return true
     Cache::shouldReceive('store')
         ->with('redis')
+        ->andReturnSelf();
+    
+    // Mock the put operation to throw exception
+    Cache::shouldReceive('put')
         ->andThrow(new \Exception('Redis connection failed'));
 
     $check = new CacheCheck();
